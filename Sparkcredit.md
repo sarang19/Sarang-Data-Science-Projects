@@ -18,19 +18,11 @@ ccRaw = sc.textFile("/Users/sarang/Desktop/SparkPythonDoBigDataAnalytics-Resourc
 ccRaw.take(5)
 
 
-Out[5]: 
-[u'CUSTID,LIMIT_BAL,SEX,EDUCATION,MARRIAGE,AGE,PAY_1,PAY_2,PAY_3,PAY_4,PAY_5,PAY_6,BILL_AMT1,BILL_AMT2,BILL_AMT3,BILL_AMT4,BILL_AMT5,BILL_AMT6,PAY_AMT1,PAY_AMT2,PAY_AMT3,PAY_AMT4,PAY_AMT5,PAY_AMT6,DEFAULTED',
- u'530,20000,2,2,2,21,-1,-1,2,2,-2,-2,0,0,0,0,0,0,0,0,0,0,162000,0,0',
- u'38,60000,2,2,2,22,0,0,0,0,-2,-2,0,0,0,0,0,0,0,0,0,0,0,1576,0',
- u'43,10000,1,2,2,22,0,0,0,0,-2,-2,0,0,0,0,0,0,0,0,0,0,0,1500,0',
- u'47,20000,2,1,2,22,0,0,2,-1,0,-1,1131,291,582,291,0,291,291,582,0,0,130291,651,0']
-
-
 #removing lines that are no "CSV"
 filteredLines = dataLines.filter(lambda x : x.find("aaaaaa") < 0 )
 filteredLines.count()
 
-Out[7]: 1000
+
 
 def rowconvert(record) :
     attList = record.split(",")
@@ -125,12 +117,6 @@ genderDf.collect()
 ccDf1 = ccDf.join( genderDf, ccDf.SEX== genderDf.SEX ).drop(genderDf.SEX)
 ccDf1.take(5)
 
-Out[58]: 
-[Row(AGE=70.0, AVG_BILL_AMT=87.66666666666667, AVG_PAY_AMT=416.6666666666667, AVG_PAY_DUR=1.0, CUSTID=u'388', DEFAULTED=1.0, EDUCATION=3.0, LIMIT_BAL=80000.0, MARRIAGE=1.0, PER_PAID=475.0, SEX=1.0, SEX_NAME=u'Male'),
- Row(AGE=60.0, AVG_BILL_AMT=56043.166666666664, AVG_PAY_AMT=57956.5, AVG_PAY_DUR=1.0, CUSTID=u'103', DEFAULTED=1.0, EDUCATION=1.0, LIMIT_BAL=480000.0, MARRIAGE=1.0, PER_PAID=100.0, SEX=1.0, SEX_NAME=u'Male'),
- Row(AGE=60.0, AVG_BILL_AMT=0.0, AVG_PAY_AMT=0.0, AVG_PAY_DUR=2.0, CUSTID=u'932', DEFAULTED=1.0, EDUCATION=1.0, LIMIT_BAL=320000.0, MARRIAGE=1.0, PER_PAID=0.0, SEX=1.0, SEX_NAME=u'Male'),
- Row(AGE=60.0, AVG_BILL_AMT=0.0, AVG_PAY_AMT=0.0, AVG_PAY_DUR=1.0, CUSTID=u'948', DEFAULTED=1.0, EDUCATION=2.0, LIMIT_BAL=50000.0, MARRIAGE=1.0, PER_PAID=0.0, SEX=1.0, SEX_NAME=u'Male'),
- Row(AGE=60.0, AVG_BILL_AMT=25828.333333333332, AVG_PAY_AMT=0.0, AVG_PAY_DUR=1.0, CUSTID=u'602', DEFAULTED=1.0, EDUCATION=3.0, LIMIT_BAL=30000.0, MARRIAGE=1.0, PER_PAID=0.0, SEX=1.0, SEX_NAME=u'Male')]
 
 
 #adding column for education and naimng them
@@ -262,12 +248,16 @@ si_model = stringIndexer.fit(ccNormDf)
 td = si_model.transform(ccNormDf)
 td.collect()
 
+
+
+
+
 #Split into training and testing data
 (trainingData, testData) = td.randomSplit([0.7, 0.3])
 trainingData.count()
 testData.count()
 
-Out[74]: 307
+
 
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.classification import DecisionTreeClassifier
@@ -276,6 +266,9 @@ from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
 evaluator = MulticlassClassificationEvaluator(predictionCol="prediction", \
                     labelCol="indexed",metricName="accuracy")
+
+
+
 
 #Creating the Decision Trees model
 dtClassifer = DecisionTreeClassifier(labelCol="indexed", \
@@ -288,6 +281,10 @@ print("Results of Decision Trees : ",evaluator.evaluate(predictions))
 
 ('Results of Decision Trees : ', 0.6905537459283387)
 
+
+
+
+
 #Create the Random Forest model
 rmClassifer = RandomForestClassifier(labelCol="indexed", \
                 featuresCol="features")
@@ -298,6 +295,9 @@ predictions.select("prediction","indexed","label","features").collect()
 print("Results of Random Forest : ",evaluator.evaluate(predictions)  )
 
 ('Results of Random Forest : ', 0.739413680781759)
+
+
+
 
 #Creating the Random Forest model
 rmClassifer = RandomForestClassifier(labelCol="indexed", \
@@ -310,6 +310,11 @@ print("Results of Random Forest : ",evaluator.evaluate(predictions)  )
 
 ('Results of Random Forest : ', 0.739413680781759)
 
+
+
+
+
+
 #Create the Naive Bayes model
 nbClassifer = NaiveBayes(labelCol="indexed", \
                 featuresCol="features")
@@ -320,6 +325,8 @@ predictions.select("prediction","indexed","label","features").collect()
 print("Results of Naive Bayes : ",evaluator.evaluate(predictions)  )
 
 ('Results of Naive Bayes : ', 0.6384364820846905)
+
+
 
 
 
@@ -351,6 +358,10 @@ predictions.select("*").show()
 |[-1.2014752545458...|
 +--------------------+
 only showing top 10 rows
+
+
+
+
 
 +------+--------------------+----------+
 |CUSTID|            features|prediction|
@@ -394,14 +405,20 @@ import os.path
 import csv
 
 
+
+
 ccRaw = sc.textFile("/Users/sarang/Desktop/SparkPythonDoBigDataAnalytics-Resources/credit-card-default-1000.csv")
 ccRaw.take(5)
 #removing lines that are no "CSV"
 filteredLines = dataLines.filter(lambda x : x.find("aaaaaa") < 0 )
 filteredLines.count()
 
+
 def rowconvert(record) :
 attList = record.split(",")
+
+
+
 
 # rounding the ages to range 10s. 
 ageRound = round(float(attList[5]) / 10.0) * 10
